@@ -1,0 +1,63 @@
+# Build and Output Artifacts
+build/
+bin/
+x64/
+*.o
+*.obj
+*.a
+*.lib
+*.so
+*.dylib
+*.dll
+*.exe
+
+# CMake
+CMakeLists.txt.user
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+CMakeUserPresets.json
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps/
+*-prefix/
+
+# Conan
+CMakeUserPresets.json
+conan_toolchain.cmake
+conanbuildinfo*
+conaninfo.txt
+conan.lock
+
+# Python
+venv/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# IDE - Visual Studio
+.vs/
+*.vcxproj.user
+*.sln.docstates
+
+# IDE - Visual Studio Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/*.code-snippets
+
+# OS and Temporary Files
+*.tmp
+*.log
+*~
+~$*
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
