@@ -60,6 +60,39 @@ conan create . --build=missing
 
 This builds `webbridge`, packages it into your local Conan cache, and builds/verifies `test_package` against the packaged artifacts.
 
+### Debug and Release builds
+
+`build_type` is a normal Conan setting here, so Debug and Release are just two separately cached binaries — nothing extra to configure. Conan's default profile builds Release:
+
+```bash
+conan create . --build=missing                     # Release (default)
+conan create . -s build_type=Debug --build=missing  # Debug
+```
+
+Both can be in your local cache side by side. `cmake_layout()` also keeps their build folders separate (e.g. `test_package/build/msvc-194-x86_64-14-release/` vs `.../14-debug/`), so building one never clobbers the other.
+
+### Testing the package
+
+`test_package/` is a minimal consumer (a `Greeter` class exposing one property/method/event, see `test_package/src/`) that proves the packaged headers, static library, and code generator all work together. It's built and its `cmake --build` step run automatically as part of `conan create .` above.
+
+To re-run just that check against an already-built `webbridge` package in your local cache (e.g. after only changing something under `test_package/`, without rebuilding the library itself):
+
+```bash
+conan test test_package webbridge/1.0.0
+```
+
+Neither command launches a GUI window — constructing a `webview::webview` needs the WebView2 runtime and a message loop, which doesn't fit an unattended test run (see the comment in `test_package/src/example.cpp`). The check is that the build succeeds and the generated `Greeter_registration.*` links correctly. To actually see it run (adjust the path for whichever `build_type` you built, see above):
+
+```bash
+# cmd.exe - Release
+test_package\build\msvc-194-x86_64-14-release\Release\example.exe
+
+# cmd.exe - Debug
+test_package\build\msvc-194-x86_64-14-debug\Debug\example.exe
+```
+
+which should print `Hello, Conan!`.
+
 ### Using it in your own C++ project
 
 In your `conanfile.py`:
