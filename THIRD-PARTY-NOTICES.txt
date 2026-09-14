@@ -23,7 +23,9 @@ C++ DEPENDENCIES
 3. Microsoft WebView2 (vendored via conanfile.py's source(), see conandata.yml)
    https://www.nuget.org/packages/Microsoft.Web.WebView2/
    Version: 1.0.1150.38
-   License: Microsoft Software License
+   License: BSD-3-Clause-style (see LICENSE.txt inside the nuget package; the
+   package's own .nuspec declares this file, not a EULA, as its license -
+   requireLicenseAcceptance is false)
    Copyright: Microsoft Corporation
 
 ===============================================================================
