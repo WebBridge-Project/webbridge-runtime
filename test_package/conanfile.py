@@ -18,6 +18,5 @@ class WebbridgeTestConan(ConanFile):
         cmake.build()
 
     def test(self):
-        # Intentionally not run: `example` would need the WebView2 runtime
-        # were it to construct a webview - build success is the test here.
+
         pass

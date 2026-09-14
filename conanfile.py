@@ -37,14 +37,6 @@ class WebbridgeConan(ConanFile):
         cmake_layout(self)
 
     def source(self):
-        # webview (and, transitively, the Microsoft WebView2 SDK) has no
-        # ConanCenter recipe, so it can't be a real requires(). Pre-fetching
-        # both here - with pinned checksums - into vendor/ lets
-        # cmake/webbridge.cmake redirect its FetchContent calls at these
-        # local copies instead of hitting the network during build(), which
-        # ConanCenter's CI disallows. vendor/ is also shipped inside the
-        # package itself (see package() below), so this benefits every
-        # downstream consumer's build too, not just this recipe's own.
         data = self.conan_data["sources"][self.version]
         get(self, **data["webview"], destination=os.path.join("vendor", "webview"), strip_root=True)
         get(self, **data["webview2"], destination=os.path.join("vendor", "webview2"), filename="webview2.zip")

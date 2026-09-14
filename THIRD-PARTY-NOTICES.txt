@@ -14,14 +14,15 @@ C++ DEPENDENCIES
    License: MIT License
    Copyright: Niels Lohmann
 
-2. webview - A tiny cross-platform webview library (via CMake FetchContent)
+2. webview - A tiny cross-platform webview library (vendored via conanfile.py's source(), see conandata.yml)
    https://github.com/webview/webview
    Version: 0.12.0
    License: MIT License
    Copyright: Serge Zaitsev and webview contributors
 
-3. Microsoft WebView2 (via CMake FetchContent, pulled in by webview)
+3. Microsoft WebView2 (vendored via conanfile.py's source(), see conandata.yml)
    https://www.nuget.org/packages/Microsoft.Web.WebView2/
+   Version: 1.0.1150.38
    License: Microsoft Software License
    Copyright: Microsoft Corporation
 

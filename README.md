@@ -30,18 +30,23 @@ The solution is based on **webview** (C++ wrapper for Microsoft WebView2/Chromiu
 ## Repository layout
 
 - `src/webbridge/` — the library itself
-- `cmake/webbridge.cmake` — the `webbridge_generate()` CMake function that drives the code generator
+- `cmake/webbridge.cmake` — the `webbridge_generate()` CMake function that drives the code generator, and the `FetchContent`/vendoring wiring for `webview`
 - `tools/` — the Python/tree-sitter code generator
 - `conanfile.py` — the Conan 2 recipe for this package
+- `conandata.yml` — pinned URLs/checksums for the vendored `webview` and Microsoft WebView2 SDK sources (downloaded in `source()`)
 - `test_package/` — the minimal consumer Conan builds via `conan create` to verify the package
 
 ## Getting started
 
 This package is Conan-only. `nlohmann_json` is resolved as a regular Conan
-dependency; `webview` (and, transitively, the Microsoft WebView2 SDK) has no
-ConanCenter recipe, so it's fetched via CMake `FetchContent` instead — both
-when building this package itself and, automatically, in any project that
-consumes it (see `cmake/webbridge.cmake`).
+dependency. `webview` has no ConanCenter recipe, 
+so it can't be a real Conan dependency either — instead,
+`source()` downloads both into`vendor/`, 
+which is also bundled inside the built package. `cmake/webbridge.cmake`
+then points CMake's `FetchContent` at those vendored copies instead of the
+network, for this package's own build *and* automatically for every project
+that consumes it — no live `git clone`/download happens during `build()`,
+which is required for ConanCenter's network-sandboxed CI.
 
 ### Prerequisites
 
@@ -65,7 +70,7 @@ This builds `webbridge`, packages it into your local Conan cache, and builds/ver
 `build_type` is a normal Conan setting here, so Debug and Release are just two separately cached binaries — nothing extra to configure. Conan's default profile builds Release:
 
 ```bash
-conan create . --build=missing                     # Release (default)
+conan create . --build=missing                      # Release (default)
 conan create . -s build_type=Debug --build=missing  # Debug
 ```
 
@@ -73,15 +78,15 @@ Both can be in your local cache side by side. `cmake_layout()` also keeps their 
 
 ### Testing the package
 
-`test_package/` is a minimal consumer (a `Greeter` class exposing one property/method/event, see `test_package/src/`) that proves the packaged headers and static library work correctly together. It's built and run automatically as part of `conan create .` above.
+`test_package/` is a minimal consumer that proves the packaged headers and static library work correctly together. It's built and run automatically as part of `conan create .` above.
 
-To re-run just that check against an already-built `webbridge` package in your local cache (e.g. after only changing something under `test_package/`, without rebuilding the library itself):
+To re-run just that check against an already-built `webbridge` package in your local cache:
 
 ```bash
 conan test test_package webbridge/1.0.0
 ```
 
-This intentionally doesn't call `webbridge_generate()` or launch a GUI window (see the comments in `test_package/CMakeLists.txt` and `test_package/src/example.cpp`): the code generator needs a `pip install`-able Python venv, and a `webview::webview` window needs the WebView2 runtime and a message loop — neither fits ConanCenter's network-sandboxed, unattended build/test environment. Instead it directly exercises the plain C++ `property<T>`/`event<...>` API. To manually verify the code generator itself against the packaged `tools/` (not covered by the automated test), add a `webbridge_generate(TARGET example AUTO LANGUAGE cpp)` call to `test_package/CMakeLists.txt` locally and rebuild — that's how this was last verified by hand.
+This intentionally doesn't call `webbridge_generate()` or launch a GUI window: the code generator needs a `pip install`-able Python venv, and a `webview::webview` window needs the WebView2 runtime and a message loop — neither fits ConanCenter's network-sandboxed, unattended build/test environment. Instead it directly exercises the plain C++ `property<T>`/`event<...>` API. To manually verify the code generator itself against the packaged `tools/` (not covered by the automated test), add a `webbridge_generate(TARGET example AUTO LANGUAGE cpp)` call to `test_package/CMakeLists.txt` locally and rebuild — that's how this was last verified by hand.
 
 To actually see the automated test run (adjust the path for whichever `build_type` you built, see above):
 
@@ -109,6 +114,7 @@ In your `CMakeLists.txt`:
 ```cmake
 find_package(webbridge REQUIRED CONFIG)
 
+target_compile_features(your_target PRIVATE cxx_std_20)
 target_link_libraries(your_target PRIVATE webbridge::webbridge)
 
 webbridge_generate(
@@ -117,6 +123,8 @@ webbridge_generate(
     LANGUAGE cpp
 )
 ```
+
+`target_compile_features(... cxx_std_20)` is required explicitly — Conan's `package_info()` has no mechanism to propagate a dependency's own C++ standard requirement to consumers, so without it you'll hit confusing compile errors instead of a clear one. Also make sure your Conan profile uses `compiler.runtime=dynamic` (Windows' default) — the packaged library is always built against the dynamic MSVC runtime regardless of your own settings, and linking a `compiler.runtime=static` consumer against it fails with a CRT mismatch (`LNK2038`).
 
 In your project:
 1. Write a class that inherits from `webbridge::object` — see [Minimal Example](#minimal-example) below for what this looks like.
