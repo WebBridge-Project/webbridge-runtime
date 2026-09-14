@@ -55,9 +55,41 @@ which is required for ConanCenter's network-sandboxed CI.
 - **Python 3** (for the code generator; a private venv with its dependencies is provisioned automatically on first use)
 - **Microsoft Edge WebView2 Runtime** (usually preinstalled on Windows 10/11)
 
-### Building and exporting the package
+### Using it in your own C++ project
 
-From this folder:
+In your `conanfile.py`:
+
+```python
+def requirements(self):
+    self.requires("webbridge/1.0.0")
+```
+
+In your `CMakeLists.txt`:
+
+```cmake
+find_package(webbridge REQUIRED CONFIG)
+
+target_compile_features(your_target PRIVATE cxx_std_20)
+target_link_libraries(your_target PRIVATE webbridge::webbridge)
+
+webbridge_generate(
+    TARGET your_target
+    AUTO
+    LANGUAGE cpp
+)
+```
+
+Replace your_target with the name of your own CMake target.
+
+In your project:
+1. Write a class that inherits from `webbridge::object` — see [Minimal Example](#minimal-example) below for what this looks like.
+
+2. Register it where you create your webview window:
+```cpp
+webbridge::register_type<YourClass>(&your_webview);
+```
+
+### Building the package locally:
 
 ```bash
 conan create . --build=missing
@@ -65,9 +97,7 @@ conan create . --build=missing
 
 This builds `webbridge`, packages it into your local Conan cache, and builds/verifies `test_package` against the packaged artifacts.
 
-### Debug and Release builds
-
-`build_type` is a normal Conan setting here, so Debug and Release are just two separately cached binaries — nothing extra to configure. Conan's default profile builds Release:
+Choose a build variant:
 
 ```bash
 conan create . --build=missing                      # Release (default)
@@ -100,39 +130,6 @@ test_package\build\msvc-194-x86_64-14-debug\Debug\example.exe
 
 which should print `Hello, Conan!`.
 
-### Using it in your own C++ project
-
-In your `conanfile.py`:
-
-```python
-def requirements(self):
-    self.requires("webbridge/1.0.0")
-```
-
-In your `CMakeLists.txt`:
-
-```cmake
-find_package(webbridge REQUIRED CONFIG)
-
-target_compile_features(your_target PRIVATE cxx_std_20)
-target_link_libraries(your_target PRIVATE webbridge::webbridge)
-
-webbridge_generate(
-    TARGET your_target
-    AUTO
-    LANGUAGE cpp
-)
-```
-
-`target_compile_features(... cxx_std_20)` is required explicitly — Conan's `package_info()` has no mechanism to propagate a dependency's own C++ standard requirement to consumers, so without it you'll hit confusing compile errors instead of a clear one. Also make sure your Conan profile uses `compiler.runtime=dynamic` (Windows' default) — the packaged library is always built against the dynamic MSVC runtime regardless of your own settings, and linking a `compiler.runtime=static` consumer against it fails with a CRT mismatch (`LNK2038`).
-
-In your project:
-1. Write a class that inherits from `webbridge::object` — see [Minimal Example](#minimal-example) below for what this looks like.
-
-2. Register it where you create your webview window:
-```cpp
-webbridge::register_type<YourClass>(&your_webview);
-```
 
 ## Concepts
 
