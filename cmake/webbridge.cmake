@@ -16,6 +16,20 @@ option(WEBBRIDGE_SKIP_AUTO_PYENV
 	"Skip auto-provisioning an isolated Python venv for the code generator; use the system Python interpreter directly (for advanced users managing their own environment/CI image)"
 	OFF)
 
+# If webview/webview2 were vendored next to this file - by the webbridge
+# Conan recipe's own source() step (its own build) or because the recipe
+# also bundles vendor/ inside the package itself (any downstream consumer,
+# including test_package) - point FetchContent at those local copies instead
+# of the network. Keeps webbridge's own package build (and everyone who
+# consumes it) working without hitting GitHub/NuGet, which matters for
+# ConanCenter's network-sandboxed build() step.
+if(EXISTS "${WEBBRIDGE_ROOT_DIR}/vendor/webview" AND NOT DEFINED FETCHCONTENT_SOURCE_DIR_WEBVIEW)
+	set(FETCHCONTENT_SOURCE_DIR_WEBVIEW "${WEBBRIDGE_ROOT_DIR}/vendor/webview" CACHE PATH "" FORCE)
+endif()
+if(EXISTS "${WEBBRIDGE_ROOT_DIR}/vendor/webview2" AND NOT DEFINED FETCHCONTENT_SOURCE_DIR_MICROSOFT_WEB_WEBVIEW2)
+	set(FETCHCONTENT_SOURCE_DIR_MICROSOFT_WEB_WEBVIEW2 "${WEBBRIDGE_ROOT_DIR}/vendor/webview2" CACHE PATH "" FORCE)
+endif()
+
 # Ensures webview::core exists for whoever includes this file - both this
 # repo's own root CMakeLists.txt (building webbridge.lib itself) and any
 # downstream consumer pulling in webbridge via Conan's cmake_build_modules

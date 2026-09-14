@@ -1,0 +1,8 @@
+sources:
+  "1.0.0":
+    webview:
+      url: "https://github.com/webview/webview/archive/refs/tags/0.12.0.tar.gz"
+      sha256: "e2c8d0bed3fcd13e624074448b7d3b1d0b0d03546a15839f17ee0013f2cba1db"
+    webview2:
+      url: "https://www.nuget.org/api/v2/package/Microsoft.Web.WebView2/1.0.1150.38"
+      sha256: "921c004bd1764b585496b2eb3eec0a59a9a98e698246f1d9a3f1c08d1d84ebd5"

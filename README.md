@@ -73,7 +73,7 @@ Both can be in your local cache side by side. `cmake_layout()` also keeps their 
 
 ### Testing the package
 
-`test_package/` is a minimal consumer (a `Greeter` class exposing one property/method/event, see `test_package/src/`) that proves the packaged headers, static library, and code generator all work together. It's built and its `cmake --build` step run automatically as part of `conan create .` above.
+`test_package/` is a minimal consumer (a `Greeter` class exposing one property/method/event, see `test_package/src/`) that proves the packaged headers and static library work correctly together. It's built and run automatically as part of `conan create .` above.
 
 To re-run just that check against an already-built `webbridge` package in your local cache (e.g. after only changing something under `test_package/`, without rebuilding the library itself):
 
@@ -81,7 +81,9 @@ To re-run just that check against an already-built `webbridge` package in your l
 conan test test_package webbridge/1.0.0
 ```
 
-Neither command launches a GUI window — constructing a `webview::webview` needs the WebView2 runtime and a message loop, which doesn't fit an unattended test run (see the comment in `test_package/src/example.cpp`). The check is that the build succeeds and the generated `Greeter_registration.*` links correctly. To actually see it run (adjust the path for whichever `build_type` you built, see above):
+This intentionally doesn't call `webbridge_generate()` or launch a GUI window (see the comments in `test_package/CMakeLists.txt` and `test_package/src/example.cpp`): the code generator needs a `pip install`-able Python venv, and a `webview::webview` window needs the WebView2 runtime and a message loop — neither fits ConanCenter's network-sandboxed, unattended build/test environment. Instead it directly exercises the plain C++ `property<T>`/`event<...>` API. To manually verify the code generator itself against the packaged `tools/` (not covered by the automated test), add a `webbridge_generate(TARGET example AUTO LANGUAGE cpp)` call to `test_package/CMakeLists.txt` locally and rebuild — that's how this was last verified by hand.
+
+To actually see the automated test run (adjust the path for whichever `build_type` you built, see above):
 
 ```bash
 # cmd.exe - Release
