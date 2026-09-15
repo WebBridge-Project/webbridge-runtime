@@ -115,52 +115,27 @@ build\Debug\your_target.exe
 build\Release\your_target.exe
 ```
 
-## Developing this repository
+## Testing your changes locally
 
-The following is only for developing/maintaining `webbridge` itself (this repository) — not for consuming it as a dependency, which is covered above.
-
-### Building the package locally
-
-Clone this repository, then from its root:
+To check whether a change you made to this repository broke anything, rebuild the package from source and let `test_package` (a minimal consumer exercising the `property<T>`/`event<...>` API) verify it:
 
 ```bash
-conan create . --build=missing
-```
-
-This builds `webbridge`, packages it into your local Conan cache, and builds/verifies `test_package` against the packaged artifacts.
-
-Choose a build variant:
-
-```bash
-conan create . --build=missing                      # Release (default)
+conan create . --build=missing                      # Release
 conan create . -s build_type=Debug --build=missing  # Debug
 ```
 
-Both can be in your local cache side by side. `cmake_layout()` also keeps their build folders separate (e.g. `test_package/build/msvc-194-x86_64-14-release/` vs `.../14-debug/`), so building one never clobbers the other.
-
-### Testing the package
-
-`test_package/` is a minimal consumer that proves the packaged headers and static library work correctly together. It's built and run automatically as part of `conan create .` above.
-
-To re-run just that check against an already-built `webbridge` package in your local cache:
+If this succeeds, the packaged headers, static library, and CMake wiring (`cmake/webbridge.cmake`, code generation) all still work together. To see it actually run (adjust the path if you built Debug):
 
 ```bash
-conan test test_package webbridge/1.0.0
-```
-
-This intentionally doesn't call `webbridge_generate()` or launch a GUI window: the code generator needs a `pip install`-able Python venv, and a `webview::webview` window needs the WebView2 runtime and a message loop — neither fits ConanCenter's network-sandboxed, unattended build/test environment. Instead it directly exercises the plain C++ `property<T>`/`event<...>` API. To manually verify the code generator itself against the packaged `tools/` (not covered by the automated test), add a `webbridge_generate(TARGET example AUTO LANGUAGE cpp)` call to `test_package/CMakeLists.txt` locally and rebuild — that's how this was last verified by hand.
-
-To actually see the automated test run (adjust the path for whichever `build_type` you built, see above):
-
-```bash
-# cmd.exe - Release
-test_package\build\msvc-194-x86_64-14-release\Release\example.exe
-
-# cmd.exe - Debug
-test_package\build\msvc-194-x86_64-14-debug\Debug\example.exe
+test_package\build\msvc-194-x86_64-14-release\Release\example.exe   # Release
+test_package\build\msvc-194-x86_64-14-debug\Debug\example.exe       # Debug
 ```
 
 which should print `Hello, Conan!`.
+
+This intentionally doesn't call `webbridge_generate()` or launch a GUI window: the code generator needs a `pip install`-able Python venv, and a `webview::webview` window needs the WebView2 runtime and a message loop — neither fits ConanCenter's network-sandboxed, unattended build environment. To manually check the code generator itself, add a `webbridge_generate(TARGET example AUTO LANGUAGE cpp)` call to `test_package/CMakeLists.txt` and rebuild.
+
+If you've already built once and only changed something under `test_package/`, `conan test test_package webbridge/1.0.0` reruns just that check without rebuilding `webbridge` itself.
 
 
 ## Concepts
