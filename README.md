@@ -55,16 +55,15 @@ which is required for ConanCenter's network-sandboxed CI.
 - **Python 3** (for the code generator; a private venv with its dependencies is provisioned automatically on first use)
 - **Microsoft Edge WebView2 Runtime** (usually preinstalled on Windows 10/11)
 
-### Using it in your own C++ project
 
-In your `conanfile.py`:
+### 1. In your `conanfile.py`
 
 ```python
 def requirements(self):
     self.requires("webbridge/1.0.0")
 ```
 
-In your `CMakeLists.txt`:
+### 2. Wire it into your own `CMakeLists.txt`
 
 ```cmake
 find_package(webbridge REQUIRED CONFIG)
@@ -81,7 +80,7 @@ webbridge_generate(
 
 Replace your_target with the name of your own CMake target.
 
-In your project:
+### 3. Write and register your class
 1. Write a class that inherits from `webbridge::object` — see [Minimal Example](#minimal-example) below for what this looks like.
 
 2. Register it where you create your webview window:
@@ -89,7 +88,40 @@ In your project:
 webbridge::register_type<YourClass>(&your_webview);
 ```
 
-### Building the package locally:
+### 4. Build and run your own project
+
+From your project's root choose a build variant:
+
+```bash
+conan install . --output-folder=build --build=missing -s  build_type=Debug  # Debug
+conan install . --output-folder=build --build=missing                       # Release (default)
+```
+Then
+```bash
+cmake -B build -S . -DCMAKE_TOOLCHAIN_FILE=build/generators/conan_toolchain.cmake
+```
+Finally, choose the same build variant again:
+```bash
+cmake --build build --config Debug                  # Debug
+cmake --build build --config Release                # Release (default)
+cmake --build build --config Release --clean-first  # Clean rebuild
+```
+
+And executing with:
+```bash
+# Debug build (with DevTools):
+build\Debug\your_target.exe
+# Release build (without DevTools):
+build\Release\your_target.exe
+```
+
+## Developing this repository
+
+The following is only for developing/maintaining `webbridge` itself (this repository) — not for consuming it as a dependency, which is covered above.
+
+### Building the package locally
+
+Clone this repository, then from its root:
 
 ```bash
 conan create . --build=missing
