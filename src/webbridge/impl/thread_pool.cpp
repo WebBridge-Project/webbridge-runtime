@@ -2,7 +2,7 @@
 
 namespace webbridge {
 
-namespace config {
+namespace impl {
 
 static size_t g_thread_pool_size = 0; // 0 = auto
 
@@ -14,13 +14,8 @@ size_t get_thread_pool_size() {
 	return g_thread_pool_size;
 }
 
-} // namespace config
-
-namespace impl {
-
 thread_pool& get_thread_pool() {
-	// Lazy initialization with the configured size
-	static thread_pool pool(config::get_thread_pool_size());
+	static thread_pool pool(get_thread_pool_size());
 	return pool;
 }
 

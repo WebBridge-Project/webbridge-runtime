@@ -7,11 +7,8 @@
 
 namespace webbridge::impl {
 
-// Track which webviews have been initialized
 static std::unordered_set<webview::webview*> initialized_webviews;
 
-// JavaScript runtime code - injected directly into webview
-// OPTIMIZED: Uses universal dispatcher functions instead of per-class bindings
 static constexpr const char* WEBBRIDGE_RUNTIME_JS = R"JS(
 // WebBridge Runtime - Injected from C++
 // V8-Optimized: Monomorphic shapes, cached lookups, inline-friendly
@@ -328,21 +325,18 @@ void init_webview(webview::webview* ptr, obj_deleter_fun fun) {
 	auto& registry = object_registry::instance();
 	auto& dispatcher = dispatcher_registry::instance();
 
-	// Inject the WebBridge runtime
 	ptr->init(WEBBRIDGE_RUNTIME_JS);
 
 	// ==========================================================================
 	// UNIVERSAL DISPATCHER BINDINGS (only 4 bind() calls total!)
 	// ==========================================================================
 
-	// 1. Universal CREATE dispatcher
 	ptr->bind("__webbridge_create",
 		[&registry, &dispatcher, ptr](const std::string& req_id, const std::string& req, void*) {
 			try {
 				auto args = nlohmann::json::parse(req);
 				auto class_name = args.at(0).get<std::string>();
-				
-				// Remove className from args, pass rest to handler
+
 				nlohmann::json create_args = nlohmann::json::array();
 				for (size_t i = 1; i < args.size(); ++i) {
 					create_args.push_back(args[i]);
@@ -356,7 +350,6 @@ void init_webview(webview::webview* ptr, obj_deleter_fun fun) {
 			}
 		}, nullptr);
 
-	// 2. Universal SYNC dispatcher
 	ptr->bind("__webbridge_sync",
 		[&registry, &dispatcher, ptr](const std::string& req_id, const std::string& req, void*) {
             auto args = nlohmann::json::parse(req);
@@ -369,7 +362,6 @@ void init_webview(webview::webview* ptr, obj_deleter_fun fun) {
             handler.sync(*ptr, registry, req_id, object_id, operation, member, args);
 		}, nullptr);
 
-	// 3. Universal ASYNC dispatcher (uses thread pool instead of std::thread)
 	ptr->bind("__webbridge_async",
 		[&registry, &dispatcher, ptr](const std::string& req_id, const std::string& req, void*) {
             auto args = nlohmann::json::parse(req);
@@ -379,14 +371,11 @@ void init_webview(webview::webview* ptr, obj_deleter_fun fun) {
             
             const auto& handler = dispatcher.get_handler(class_name);
             
-            // Submit to thread pool instead of creating new thread each time
-            // This saves ~50-100µs per async call!
             get_thread_pool().submit([handler, ptr, &registry, req_id, object_id, method, args]() {
                 handler.async(*ptr, registry, req_id, object_id, method, args);
             });
 		}, nullptr);
 
-	// 4. Universal DESTROY dispatcher
 	ptr->bind("__webbridge_destroy", [fun](const std::string& req) -> std::string {
 		auto args = nlohmann::json::parse(req);
 		auto object_id = args.at(0).get<std::string>();
@@ -410,8 +399,6 @@ std::string generate_js_class_wrapper(
 	const std::vector<std::string>& instance_constants,
 	const nlohmann::json& static_constants)
 {
-	// Runtime is already injected via init_webview
-	// JS now uses universal __webbridge_* functions instead of per-class bindings
 	std::string js = std::format(R"(
 (function() {{
 	try {{

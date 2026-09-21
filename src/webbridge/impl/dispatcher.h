@@ -18,7 +18,6 @@
 
 namespace webbridge::impl {
 
-// Forward declaration
 class object_registry;
 
 // =============================================================================
@@ -79,17 +78,14 @@ public:
 		return inst;
 	}
 
-	// Register handlers for a class
 	void register_class(const std::string& class_name, class_handler handler) {
 		handlers_[class_name] = std::move(handler);
 	}
 
-	// Check if a class is registered
 	bool has_class(const std::string& class_name) const {
 		return handlers_.count(class_name) > 0;
 	}
 
-	// Get handler for a class (throws if not found)
 	const class_handler& get_handler(const std::string& class_name) const {
 		auto it = handlers_.find(class_name);
 		if (it == handlers_.end()) {
@@ -98,7 +94,6 @@ public:
 		return it->second;
 	}
 
-	// Get all registered class names (for debugging)
 	std::vector<std::string> get_class_names() const {
 		std::vector<std::string> names;
 		names.reserve(handlers_.size());

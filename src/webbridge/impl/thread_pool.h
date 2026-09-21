@@ -12,10 +12,10 @@
  *	#include "webbridge/impl/thread_pool.h"
  *
  *	// Optional: set the number of worker threads (default: CPU cores)
- *	webbridge::config::set_thread_pool_size(8);
+ *	webbridge::set_thread_pool_size(8);
  *
  *	// Later: get the thread pool
- *	auto& pool = webbridge::impl::get_thread_pool();
+ *	auto& pool = webbridge::get_thread_pool();
  *
  * WHAT HAPPENS WITH MORE REQUESTS THAN THREADS?
  * ----------------------------------------------
@@ -100,17 +100,11 @@ public:
 		}
 	}
 
-	// Non-copyable, non-movable
 	thread_pool(const thread_pool&) = delete;
 	thread_pool& operator=(const thread_pool&) = delete;
 	thread_pool(thread_pool&&) = delete;
 	thread_pool& operator=(thread_pool&&) = delete;
 
-	/**
-	 * Submit a task to the pool.
-	 * The task will be executed by one of the worker threads.
-	 * If all workers are busy, the task is queued (FIFO).
-	 */
 	void submit(std::function<void()> task) {
 		{
 			std::unique_lock<std::mutex> lock(m_mutex);
@@ -119,16 +113,10 @@ public:
 		m_condition.notify_one();
 	}
 
-	/**
-	 * Returns the number of worker threads.
-	 */
 	size_t size() const {
 		return m_workers.size();
 	}
 
-	/**
-	 * Returns the approximate number of pending tasks in the queue.
-	 */
 	size_t pending() const {
 		std::unique_lock<std::mutex> lock(m_mutex);
 		return m_tasks.size();
@@ -153,7 +141,6 @@ private:
 				m_tasks.pop();
 			}
 
-			// Execute task outside the lock
 			task();
 		}
 	}
@@ -169,10 +156,6 @@ private:
 // Global Thread Pool Access
 // =============================================================================
 
-/**
- * Returns the global thread pool instance.
- * Creates it on first call with the configured size.
- */
 thread_pool& get_thread_pool();
 
 } // namespace impl
