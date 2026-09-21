@@ -1,14 +1,5 @@
 #pragma once
 
-/**
- * WebBridge Dispatcher - Central binding dispatch system
- *
- * Instead of creating N bind() calls per class (which causes O(n²) performance),
- * we use a single set of dispatcher bindings that route to class-specific handlers.
- *
- * This reduces startup time from ~440ms to ~20ms for 37 classes.
- */
-
 #include <string>
 #include <functional>
 #include <unordered_map>
@@ -24,8 +15,6 @@ class object_registry;
 // Handler Types
 // =============================================================================
 
-// Sync handler: Called on main thread, returns result immediately
-// Parameters: webview&, registry&, req_id, object_id, operation, member, args_json
 using sync_handler_t = std::function<void(
 	webview::webview&,
 	object_registry&,
@@ -36,8 +25,6 @@ using sync_handler_t = std::function<void(
 	const nlohmann::json& args
 )>;
 
-// Async handler: Called on background thread
-// Parameters: webview&, registry&, req_id, object_id, method, args_json
 using async_handler_t = std::function<void(
 	webview::webview&,
 	object_registry&,
@@ -47,9 +34,6 @@ using async_handler_t = std::function<void(
 	const nlohmann::json& args
 )>;
 
-// Create handler: Creates new instance
-// Parameters: webview&, registry&, args_json
-// Returns: object_id
 using create_handler_t = std::function<std::string(
 	webview::webview&,
 	object_registry&,
