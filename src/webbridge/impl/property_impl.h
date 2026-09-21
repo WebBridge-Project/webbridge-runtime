@@ -24,7 +24,6 @@ public:
 		return get();
 	}
 
-	// Kurzform für set()
 	property& operator=(T newValue) {
 		return set(std::move(newValue));
 	}

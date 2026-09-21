@@ -3,7 +3,6 @@
 
 namespace webbridge::impl {
 
-// Globaler Error-Handler
 static error_handler g_error_handler;
 
 void set_error_handler(error_handler handler) {

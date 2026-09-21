@@ -22,8 +22,6 @@ class WebbridgeConan(ConanFile):
         "CMakeLists.txt",
         "cmake/*",
         "src/webbridge/*",
-        "tools/*",
-        "requirements.txt",
     )
 
     def validate(self):
@@ -56,13 +54,9 @@ class WebbridgeConan(ConanFile):
              dst=os.path.join(self.package_folder, "include", "webbridge"))
         copy(self, "*.lib", src=self.build_folder,
              dst=os.path.join(self.package_folder, "lib"), keep_path=False)
-        copy(self, "webbridge.cmake",
+        copy(self, "webbridge-webview.cmake",
              src=os.path.join(self.source_folder, "cmake"),
              dst=os.path.join(self.package_folder, "cmake"))
-        copy(self, "*", src=os.path.join(self.source_folder, "tools"),
-             dst=os.path.join(self.package_folder, "tools"))
-        copy(self, "requirements.txt", src=self.source_folder,
-             dst=self.package_folder)
         copy(self, "*", src=os.path.join(self.source_folder, "vendor", "webview"),
              dst=os.path.join(self.package_folder, "vendor", "webview"))
         copy(self, "*", src=os.path.join(self.source_folder, "vendor", "webview2"),
@@ -73,4 +67,4 @@ class WebbridgeConan(ConanFile):
         self.cpp_info.defines = ["_WIN32_WINNT=0x0A00"]
         self.cpp_info.set_property("cmake_target_name", "webbridge::webbridge")
         self.cpp_info.builddirs = ["cmake"]
-        self.cpp_info.set_property("cmake_build_modules", [os.path.join("cmake", "webbridge.cmake")])
+        self.cpp_info.set_property("cmake_build_modules", [os.path.join("cmake", "webbridge-webview.cmake")])

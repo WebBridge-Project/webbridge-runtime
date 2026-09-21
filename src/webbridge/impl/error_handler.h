@@ -8,10 +8,10 @@ namespace webbridge {
 struct error;
 
 /**
- * Callback-Typ für benutzerdefinierten Error-Handler
- * 
- * Wird aufgerufen, wenn ein C++-Fehler auftritt.
- * Kann den Error modifizieren (z.B. Details, Stack hinzufügen).
+ * Callback type for a custom error handler.
+ *
+ * Called when a C++ error occurs.
+ * Can modify the error (e.g. add details, stack trace).
  */
 using error_handler = std::function<void(error& err, const std::exception& ex)>;
 

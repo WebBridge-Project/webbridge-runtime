@@ -5,9 +5,9 @@ cmake_minimum_required(VERSION 3.26)
 cmake_policy(SET CMP0091 NEW)
 
 # CMAKE_CURRENT_SOURCE_DIR (not CMAKE_SOURCE_DIR) so this still finds
-# cmake/webbridge.cmake when webbridge is add_subdirectory()'d/FetchContent'd
-# from another project - CMAKE_SOURCE_DIR would then point at the consumer's
-# root instead of this one.
+# cmake/webbridge-webview.cmake when webbridge is add_subdirectory()'d/
+# FetchContent'd from another project - CMAKE_SOURCE_DIR would then point at
+# the consumer's root instead of this one.
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 
 project(
@@ -19,9 +19,8 @@ project(
 # Match the dynamic (DLL) MSVC runtime that webview/WebView2 expect.
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
 
-include(webbridge)
+include(webbridge-webview)
 
-find_package(Python REQUIRED COMPONENTS Interpreter)
 find_package(nlohmann_json REQUIRED)
 
 add_library(webbridge STATIC

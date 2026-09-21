@@ -1,3 +1,3 @@
 {
-    "cmake.sourceDirectory": "C:/Git/webbridge-runtime/webbridge-hackathon"
+    "cmake.sourceDirectory": "${workspaceFolder}"
 }

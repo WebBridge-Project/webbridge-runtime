@@ -18,5 +18,4 @@ class WebbridgeTestConan(ConanFile):
         cmake.build()
 
     def test(self):
-
         pass

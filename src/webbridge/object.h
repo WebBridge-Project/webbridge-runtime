@@ -37,17 +37,17 @@ void register_type(webview::webview* w) {
 }
 
 /**
- * Setzt die Anzahl der Worker-Threads im Thread-Pool.
- * MUSS vor dem ersten Async-Call aufgerufen werden!
- * 
- * @param num_threads Anzahl der Worker-Threads (0 = auto = CPU-Kerne)
+ * Sets the number of worker threads in the thread pool.
+ * MUST be called before the first async call!
+ *
+ * @param num_threads Number of worker threads (0 = auto = CPU cores)
  */
 inline void set_thread_pool_size(size_t num_threads) {
 	impl::set_thread_pool_size(num_threads);
 }
 
 /**
- * Gibt die konfigurierte Thread-Pool-Größe zurück.
+ * Returns the configured thread pool size.
  */
 inline size_t get_thread_pool_size() {
 	return impl::get_thread_pool_size();
