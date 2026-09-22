@@ -9,7 +9,7 @@ class WebbridgeConan(ConanFile):
     name = "webbridge"
     version = "1.0.0"
     license = "MIT"
-    url = "https://github.com/WebBridge-Project/webbridge"
+    url = "https://github.com/WebBridge-Project/webbridge-runtime"
     description = (
         "C++ to JavaScript bridge for building WebView2-based desktop UIs "
         "with Qt-like properties/methods/events and no boilerplate."
