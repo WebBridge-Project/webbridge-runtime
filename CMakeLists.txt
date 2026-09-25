@@ -12,12 +12,17 @@ set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 
 project(
 	webbridge
-	VERSION 1.0.0
+	VERSION 0.1.0
 	LANGUAGES CXX C
 )
 
-# Match the dynamic (DLL) MSVC runtime that webview/WebView2 expect.
-set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+# Match the dynamic (DLL) MSVC runtime that webview/WebView2 expect, but only
+# as a fallback: Conan's toolchain sets this from the profile's
+# compiler.runtime when building via `conan create`/`conan install`, and that
+# choice must win over this default.
+if(NOT DEFINED CMAKE_MSVC_RUNTIME_LIBRARY)
+	set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+endif()
 
 include(webbridge-webview)
 

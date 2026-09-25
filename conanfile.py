@@ -7,7 +7,7 @@ from conan.tools.files import copy, get
 
 class WebbridgeConan(ConanFile):
     name = "webbridge"
-    version = "1.0.0"
+    version = "0.1.0"
     license = "MIT"
     url = "https://github.com/WebBridge-Project/webbridge-runtime"
     description = (
@@ -22,6 +22,8 @@ class WebbridgeConan(ConanFile):
         "CMakeLists.txt",
         "cmake/*",
         "src/webbridge/*",
+        "LICENSE",
+        "THIRD-PARTY-NOTICES.txt",
     )
 
     def validate(self):
@@ -49,6 +51,10 @@ class WebbridgeConan(ConanFile):
         cmake.build()
 
     def package(self):
+        copy(self, "LICENSE", src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "THIRD-PARTY-NOTICES.txt", src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         copy(self, "*.h",
              src=os.path.join(self.source_folder, "src", "webbridge"),
              dst=os.path.join(self.package_folder, "include", "webbridge"))

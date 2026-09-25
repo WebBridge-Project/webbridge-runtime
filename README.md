@@ -44,8 +44,8 @@ downloads both into `vendor/`, which is also bundled inside the built
 package. `cmake/webbridge-webview.cmake` then points CMake's `FetchContent`
 at those vendored copies instead of the network, for this package's own
 build *and* automatically for every project that consumes it — no live
-`git clone`/download happens during `build()`, which is required for
-ConanCenter's network-sandboxed CI.
+`git clone`/download happens during `build()`, which keeps builds offline
+and reproducible.
 
 The code generator is a separate, pip-installable package,
 [`webbridge-tools`](https://github.com/fsbondtec/webbridge-tools) — it's not
@@ -59,11 +59,22 @@ bundled here, so consuming this library also means installing that package.
 - **Microsoft Edge WebView2 Runtime** (usually preinstalled on Windows 10/11)
 
 
+### 0. Add our Conan server as a remote
+
+`webbridge` is published on our internal Conan server, not ConanCenter, so consumers need to add it as a remote (and log in, since it isn't anonymous) before `conan install`/`conan create` can find the package:
+
+```bash
+conan remote add webbridge-server http://<server-host>:9300 --index 0
+conan remote login webbridge-server <username> -p <password>
+```
+
+`--index 0` gives our server priority over `conancenter` when resolving `webbridge` itself. Other dependencies such as `nlohmann_json` are unaffected and still resolve from `conancenter` as usual.
+
 ### 1. In your `conanfile.py`
 
 ```python
 def requirements(self):
-    self.requires("webbridge/1.0.0")
+    self.requires("webbridge/0.1.0")
 ```
 
 ### 2. Wire it into your own `CMakeLists.txt`
@@ -150,10 +161,27 @@ test_package\build\msvc-194-x86_64-14-debug\Debug\example.exe       # Debug
 
 which should print `Hello, Conan!`.
 
-This intentionally doesn't call `webbridge_generate()` or launch a GUI window: `webbridge_generate()` isn't part of this repository at all anymore — it lives in the separate [`webbridge-tools`](https://github.com/fsbondtec/webbridge-tools) pip package, which has its own tests for the code generator. And a `webview::webview` window needs the WebView2 runtime and a message loop, which doesn't fit ConanCenter's network-sandboxed, unattended build environment regardless.
+This intentionally doesn't call `webbridge_generate()` or launch a GUI window: `webbridge_generate()` isn't part of this repository at all anymore — it lives in the separate [`webbridge-tools`](https://github.com/fsbondtec/webbridge-tools) pip package, which has its own tests for the code generator. And a `webview::webview` window needs the WebView2 runtime and a message loop, which doesn't fit an unattended build environment regardless.
 
-If you've already built once and only changed something under `test_package/`, `conan test test_package webbridge/1.0.0` reruns just that check without rebuilding `webbridge` itself.
+If you've already built once and only changed something under `test_package/`, `conan test test_package webbridge/0.1.0` reruns just that check without rebuilding `webbridge` itself.
 
+
+## Publishing a release to the private Conan server
+
+1. Bump the version in three places: `version` in [conanfile.py](conanfile.py), `project(... VERSION ...)` in [CMakeLists.txt](CMakeLists.txt), and the `sources` key in [conandata.yml](conandata.yml).
+2. Build and test both configurations locally:
+   ```bash
+   conan create . --build=missing                      # Release
+   conan create . -s build_type=Debug --build=missing  # Debug
+   ```
+   Build any other profiles the team relies on too, e.g. `-s compiler.runtime=static`.
+3. Upload the new version:
+   ```bash
+   conan upload "webbridge/<version>" -r webbridge-server --confirm
+   ```
+4. Tag the commit as `v<version>`.
+
+Consumers who don't have a matching prebuilt binary can still fall back to `--build=missing`, but that needs internet access since `source()` downloads `webview` and the WebView2 SDK.
 
 ## Concepts
 
