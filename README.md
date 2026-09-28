@@ -64,8 +64,8 @@ bundled here, so consuming this library also means installing that package.
 `webbridge` is published on our internal Conan server, not ConanCenter, so consumers need to add it as a remote (and log in, since it isn't anonymous) before `conan install`/`conan create` can find the package:
 
 ```bash
-conan remote add webbridge-server http://<server-host>:9300 --index 0
-conan remote login webbridge-server <username> -p <password>
+conan remote add --insecure --index 0 fsb http://<server-host>:9300
+conan remote login fsb <username> -p <password>
 ```
 
 `--index 0` gives our server priority over `conancenter` when resolving `webbridge` itself. Other dependencies such as `nlohmann_json` are unaffected and still resolve from `conancenter` as usual.
@@ -177,7 +177,7 @@ If you've already built once and only changed something under `test_package/`, `
    Build any other profiles the team relies on too, e.g. `-s compiler.runtime=static`.
 3. Upload the new version:
    ```bash
-   conan upload "webbridge/<version>" -r webbridge-server --confirm
+   conan upload "webbridge/<version>" -r fsb --confirm
    ```
 4. Tag the commit as `v<version>`.
 
