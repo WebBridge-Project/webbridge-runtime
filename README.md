@@ -179,7 +179,7 @@ If you've already built once and only changed something under `test_package/`, `
    ```bash
    conan upload "webbridge/<version>" -r fsb --confirm
    ```
-4. Tag the commit as `v<version>`.
+4. Tag the commit as `<version>`.
 
 Consumers who don't have a matching prebuilt binary can still fall back to `--build=missing`, but that needs internet access since `source()` downloads `webview` and the WebView2 SDK.
 
