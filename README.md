@@ -48,14 +48,14 @@ build *and* automatically for every project that consumes it — no live
 and reproducible.
 
 The code generator is a separate, pip-installable package,
-[`webbridge-tools`](https://github.com/fsbondtec/webbridge-tools) — it's not
+[`webbridge-tools`](https://github.com/WebBridge-Project/webbridge-tools) — it's not
 bundled here, so consuming this library also means installing that package.
 
 ### Prerequisites
 
 - **Visual Studio 2022** with C++ Desktop Development (MSVC compiler)
 - **Conan 2** and **CMake 3.26+**
-- **Python 3** with [`webbridge-tools`](https://github.com/fsbondtec/webbridge-tools) installed (`pip install webbridge-tools`) — provides the code generator and its `webbridge_generate()` CMake function
+- **Python 3** with [`webbridge-tools`](https://github.com/WebBridge-Project/webbridge-tools) installed (`pip install webbridge-tools`) — provides the code generator and its `webbridge_generate()` CMake function
 - **Microsoft Edge WebView2 Runtime** (usually preinstalled on Windows 10/11)
 
 
@@ -161,7 +161,7 @@ test_package\build\msvc-194-x86_64-14-debug\Debug\example.exe       # Debug
 
 which should print `Hello, Conan!`.
 
-This intentionally doesn't call `webbridge_generate()` or launch a GUI window: `webbridge_generate()` isn't part of this repository at all anymore — it lives in the separate [`webbridge-tools`](https://github.com/fsbondtec/webbridge-tools) pip package, which has its own tests for the code generator. And a `webview::webview` window needs the WebView2 runtime and a message loop, which doesn't fit an unattended build environment regardless.
+This intentionally doesn't call `webbridge_generate()` or launch a GUI window: `webbridge_generate()` isn't part of this repository at all anymore — it lives in the separate [`webbridge-tools`](https://github.com/WebBridge-Project/webbridge-tools) pip package, which has its own tests for the code generator. And a `webview::webview` window needs the WebView2 runtime and a message loop, which doesn't fit an unattended build environment regardless.
 
 If you've already built once and only changed something under `test_package/`, `conan test test_package webbridge/0.1.0` reruns just that check without rebuilding `webbridge` itself.
 
