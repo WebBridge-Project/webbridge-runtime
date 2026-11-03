@@ -1,5 +1,7 @@
 # webbridge-runtime
 
+This repo is part of a project called webbridge. You can find its documentation on [`ReadTheDocs`](https://webbridge-docs.readthedocs.io/en/latest/index.html).
+
 C++ objects are seamlessly integrated into modern web applications as a modern **Qt alternative** for web-based UIs. While Qt uses QML/Qt Quick or Qt WebEngine for GUI development, WebBridge leverages standard web technologies.
 
 **Motivation:** A key advantage over Qt is the significantly reduced boilerplate code. In Qt, a simple property requires extensive boilerplate with getter, setter, signal, and backing field:
