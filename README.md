@@ -2,40 +2,6 @@
 
 This repo is part of a project called webbridge. You can find its documentation on [`ReadTheDocs`](https://webbridge-docs.readthedocs.io/en/latest/index.html).
 
-C++ objects are seamlessly integrated into modern web applications as a modern **Qt alternative** for web-based UIs. While Qt uses QML/Qt Quick or Qt WebEngine for GUI development, WebBridge leverages standard web technologies.
-
-**Motivation:** A key advantage over Qt is the significantly reduced boilerplate code. In Qt, a simple property requires extensive boilerplate with getter, setter, signal, and backing field:
-
-```cpp
-// Qt approach - verbose boilerplate
-Q_PROPERTY(bool aBool READ aBool WRITE setABool NOTIFY aBoolChanged)
-bool aBool() const {
-    return _aBool;
-}
-void setABool(bool v) {
-    if (v != _aBool) {
-        _aBool = v;
-        emit aBoolChanged();
-    }
-}
-signals:
-    void aBoolChanged();
-private:
-    bool _aBool;
-
-// WebBridge approach - minimal and clean
-property<bool> aBool;
-```
-
-The solution is based on **webview** (C++ wrapper for Microsoft WebView2/Chromium) and a **Python code generator** (`tools/generate.py`) that uses **tree-sitter** to analyze C++ classes and automatically generate C++ registration headers and TypeScript type definitions. The build process automatically invokes the code generator via CMake, making the workflow seamless. Code generation is required because C++26 reflection is not yet available.
-
-## Repository layout
-
-- `src/webbridge/` — the library itself
-- `cmake/webbridge-webview.cmake` — the `FetchContent`/vendoring wiring for the `webview` C++ dependency
-- `conanfile.py` — the Conan 2 recipe for this package
-- `conandata.yml` — pinned URLs/checksums for the vendored `webview` and Microsoft WebView2 SDK sources
-- `test_package/` — the minimal consumer Conan builds via `conan create` to verify the package
 
 ## Getting started
 
