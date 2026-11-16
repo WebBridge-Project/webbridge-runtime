@@ -68,7 +68,10 @@ class WebbridgeConan(ConanFile):
         copy(self, "*.h",
              src=os.path.join(self.source_folder, "src", "webbridge"),
              dst=os.path.join(self.package_folder, "include", "webbridge"))
+        # *.lib (MSVC) and *.a (GCC/Clang on Linux/macOS) - static library naming differs by platform.
         copy(self, "*.lib", src=self.build_folder,
+             dst=os.path.join(self.package_folder, "lib"), keep_path=False)
+        copy(self, "*.a", src=self.build_folder,
              dst=os.path.join(self.package_folder, "lib"), keep_path=False)
         if self.options.with_webview:
             copy(self, "webbridge-webview.cmake",
