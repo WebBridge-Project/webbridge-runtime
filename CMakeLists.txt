@@ -24,7 +24,11 @@ if(NOT DEFINED CMAKE_MSVC_RUNTIME_LIBRARY)
 	set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
 endif()
 
-include(webbridge-webview)
+option(WEBBRIDGE_WITH_WEBVIEW "Build the WebView2-based webview integration (register_type, init_webview, JS bridge). Windows-only." OFF)
+
+if(WEBBRIDGE_WITH_WEBVIEW)
+	include(webbridge-webview)
+endif()
 
 find_package(nlohmann_json REQUIRED)
 
@@ -52,14 +56,16 @@ target_include_directories(webbridge PUBLIC
 
 target_compile_features(webbridge PUBLIC cxx_std_20)
 
-# WebView2 (via the webview library) requires a modern Windows SDK target;
-# PUBLIC because consumers including webbridge headers pull in webview.h too.
-target_compile_definitions(webbridge PUBLIC _WIN32_WINNT=0x0A00)
-
 target_link_libraries(webbridge PUBLIC
 	nlohmann_json::nlohmann_json
-	webview::core
 )
+
+if(WEBBRIDGE_WITH_WEBVIEW)
+	# WebView2 (via the webview library) requires a modern Windows SDK target;
+	# PUBLIC because consumers including webbridge headers pull in webview.h too.
+	target_compile_definitions(webbridge PUBLIC _WIN32_WINNT=0x0A00 WEBBRIDGE_WITH_WEBVIEW)
+	target_link_libraries(webbridge PUBLIC webview::core)
+endif()
 
 if(MSVC)
 	target_compile_options(webbridge PRIVATE /W3 /bigobj)

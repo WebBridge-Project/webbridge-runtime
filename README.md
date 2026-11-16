@@ -43,7 +43,15 @@ conan remote login fsb <username> -p <password>
 ```python
 def requirements(self):
     self.requires("webbridge/0.1.0")
+
+def configure(self):
+    self.options["webbridge"].with_webview = True
 ```
+
+`with_webview` defaults to `False`. The library's core (`property<T>`,
+`event<Args...>`, error handling) builds without it on any OS, but the
+WebView2-based JavaScript bridge (`register_type()`, `webbridge_generate()`)
+needs `with_webview=True`, which is Windows-only.
 
 ### 2. Wire it into your own `CMakeLists.txt`
 
@@ -113,14 +121,21 @@ build\Release\your_target.exe
 
 ## Testing your changes locally
 
-To check whether a change you made to this repository broke anything, rebuild the package from source and let `test_package` (a minimal consumer exercising the `property<T>`/`event<...>` API) verify it:
+To check whether a change you made to this repository broke anything, rebuild the package from source and let `test_package` (a minimal consumer exercising the `property<T>`/`event<...>` API) verify it without webview (false by default):
 
 ```bash
 conan create . --build=missing                      # Release
 conan create . -s build_type=Debug --build=missing  # Debug
 ```
 
-If this succeeds, the packaged headers, static library, and CMake wiring (`cmake/webbridge-webview.cmake`) all still work together. To see it actually run (adjust the path if you built Debug):
+How to test it with webview activated:
+
+```bash
+conan create . -o with_webview=True --build=missing                         # Release
+conan create . -s build_type=Debug -o with_webview=True --build=missing     # Debug
+```
+
+Choose one of the 4 versions and run their matching `build_type`:
 
 ```bash
 test_package\build\msvc-194-x86_64-14-release\Release\example.exe   # Release

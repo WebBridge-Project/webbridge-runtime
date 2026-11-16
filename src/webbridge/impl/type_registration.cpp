@@ -1,11 +1,16 @@
 #include "type_registration.h"
+#include <format>
+
+#ifdef WEBBRIDGE_WITH_WEBVIEW
 #include "object_registry.h"
 #include "thread_pool.h"
-#include <format>
 #include <unordered_set>
 #include <iostream>
+#endif
 
 namespace webbridge::impl {
+
+#ifdef WEBBRIDGE_WITH_WEBVIEW
 
 static std::unordered_set<webview::webview*> initialized_webviews;
 
@@ -389,6 +394,8 @@ void init_webview(webview::webview* ptr, obj_deleter_fun fun) {
 bool is_webview_initialized(webview::webview* ptr) {
 	return ptr && initialized_webviews.count(ptr) > 0;
 }
+
+#endif // WEBBRIDGE_WITH_WEBVIEW
 
 std::string generate_js_class_wrapper(
 	std::string_view type_name,
