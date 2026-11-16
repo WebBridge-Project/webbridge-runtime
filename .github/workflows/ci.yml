@@ -1,0 +1,35 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+        with_webview: ["False", "True"]
+        exclude:
+          # webview integration is Windows-only (needs Microsoft WebView2).
+          - os: ubuntu-latest
+            with_webview: "True"
+          - os: macos-latest
+            with_webview: "True"
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Install Conan and CMake
+        run: pip install conan cmake
+
+      - name: Detect Conan profile
+        run: conan profile detect --force
+
+      - name: Build and test (with_webview=${{ matrix.with_webview }})
+        run: conan create . -o with_webview=${{ matrix.with_webview }} --build=missing
