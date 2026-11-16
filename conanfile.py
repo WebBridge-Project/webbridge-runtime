@@ -7,7 +7,7 @@ from conan.tools.files import copy, get
 
 class WebbridgeConan(ConanFile):
     name = "webbridge"
-    version = "0.1.0"
+    version = "1.0.0"
     license = "MIT"
     url = "https://github.com/WebBridge-Project/webbridge-runtime"
     description = (

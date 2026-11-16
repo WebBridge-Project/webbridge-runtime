@@ -42,7 +42,7 @@ conan remote login fsb <username> -p <password>
 
 ```python
 def requirements(self):
-    self.requires("webbridge/0.1.0")
+    self.requires("webbridge/1.0.0")
 
 def configure(self):
     self.options["webbridge"].with_webview = True
@@ -146,7 +146,7 @@ which should print `Hello, Conan!`.
 
 This intentionally doesn't call `webbridge_generate()` or launch a GUI window: `webbridge_generate()` isn't part of this repository at all anymore — it lives in the separate [`webbridge-tools`](https://github.com/WebBridge-Project/webbridge-tools) pip package, which has its own tests for the code generator. And a `webview::webview` window needs the WebView2 runtime and a message loop, which doesn't fit an unattended build environment regardless.
 
-If you've already built once and only changed something under `test_package/`, `conan test test_package webbridge/0.1.0` reruns just that check without rebuilding `webbridge` itself.
+If you've already built once and only changed something under `test_package/`, `conan test test_package webbridge/1.0.0` reruns just that check without rebuilding `webbridge` itself.
 
 
 ## Publishing a release to the private Conan server
